@@ -15,9 +15,13 @@ class ReviewFormTemplateObjects(Enum):
 
 @pytest.mark.django_db
 class TestForms:
-    def test_GET_request_create_form_success(self, client, make_client, professional):
-        client.force_login(make_client().profile_id.user_id)
-        url = reverse('review-create', kwargs={'pk': professional.pk})
+    def test_GET_request_create_form_success(self, create_user, client, create_professional):
+        client.force_login(create_user(
+
+        ))
+        url = reverse('review-create', kwargs={'pk': create_professional(
+
+        ).pk})
         response = client.get(url)
         self.assert_review_form(response, expected_status_code=200)
         # Test the review form template objects existence
@@ -26,27 +30,42 @@ class TestForms:
         assert ReviewFormTemplateObjects.BUTTON1.value in response.content
         assert ReviewFormTemplateObjects.BUTTON2.value in response.content
 
-    def test_GET_request_create_form_fail(self, client, make_client, professional, create_review):
-        client_user = make_client()
+    def test_GET_request_create_form_fail(self, create_user, client, create_professional, create_review):
+        user = create_user(
+
+        )
         # `make_client` with review to `professional`. He is redirected to a different URL
-        client.force_login(client_user.profile_id.user_id)
-        create_review(client_user, professional, RATING, DESCRIPTION, DAYS)
+        client.force_login(user)
+        professional = create_professional(
+
+        )
+        create_review(user, professional, RATING, DESCRIPTION, DAYS)
         url = reverse('review-create', kwargs={'pk': professional.pk})
         response = client.get(url)
         self.assert_review_form(response, expected_status_code=302)
 
-    def test_review_update_form_success(self, client, make_client, professional, create_review):
-        client_user = make_client()
-        client.force_login(client_user.profile_id.user_id)
-        create_review(client_user, professional, RATING, DESCRIPTION, DAYS)
+    def test_review_update_form_success(self, create_user, client, create_professional, create_review):
+        user = create_user(
+
+        )
+        client.force_login(user)
+        professional = create_professional(
+
+        )
+        create_review(user, professional, RATING, DESCRIPTION, DAYS)
         url = reverse('review-update', kwargs={'pk': professional.pk})
         response = client.get(url)
         self.assert_review_form(response, expected_status_code=200)
 
-    def test_review_update_form_fail(self, client, make_client, professional, create_review):
+    def test_review_update_form_fail(self, create_user, client, create_professional):
         # `make_client` must review `professional` before entering update page
-        client.force_login(make_client().profile_id.user_id)
-        url = reverse('review-update', kwargs={'pk': professional.pk})
+        user = create_user(
+
+        )
+        client.force_login(user)
+        url = reverse('review-update', kwargs={'pk': create_professional(
+
+        ).pk})
         response = client.get(url)
         self.assert_review_form(response, expected_status_code=404)
 

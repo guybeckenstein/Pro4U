@@ -1,0 +1,126 @@
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  display: grid;
+  grid-template-columns: 1fr 3fr 1fr;
+  grid-gap: 20px;
+}
+
+.filters {
+  grid-column: 1;
+}
+
+.filters .head-line-label {
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.filter-box {
+  margin-bottom: 10px;
+}
+
+input[type="number"],
+input[type="text"] {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.search-btn {
+  padding: 10px 20px;
+  background-color: #02080f;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.search-results {
+  grid-column: 2;
+}
+
+.search-results .head-line-label {
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.professional-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+
+  grid-gap: 20px;
+}
+
+.professional-box {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.3s;
+  cursor: pointer;
+  text-align: center;
+}
+
+.professional-box:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.professional-box h3 {
+    margin-top: 0;
+    font-size: 24px;
+}
+
+.professional-box p {
+    margin-top: 5px;
+    font-size: 16px;
+    color: #666;
+}
+
+.search-history {
+    grid-column: 3;
+  }
+
+.search-history-box {
+    width: 100%;
+    margin-bottom: 5px;
+    padding: 1px;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: box-shadow 0.3s;
+    cursor: pointer;
+    text-align: center;
+}
+
+.search-history-box p {
+    margin-top: 2px;
+    font-size: 16px;
+    color: #666;
+}
+
+.search-history-box h3 {
+    margin-top: 0;
+    font-size: 12px;
+}
+
+.search-history-box:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.search-history .head-line-label {
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.search-history-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  grid-gap: 20px;
+}
+
+.search-history-box {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}

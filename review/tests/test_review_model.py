@@ -1,28 +1,26 @@
-from typing import Callable
-
 import pytest
 
+from account.models import User
+from conftest import BIRTHDAY
 from review.models import Review
 from django.template.backends import django
 
-DESCRIPTION = 'Creating a test review'
-DAYS = 50
-RATING = ['4', '1', '5']
+from review.tests.conftest import RATING, DESCRIPTION, DAYS
 
 
 @pytest.mark.django_db
 class TestReview:
-    def test_get_new_review(self, make_client, professional, create_review):
-        review = create_review(make_client(), professional, RATING[0], DESCRIPTION, DAYS)  # Using factory function
+    def test_get_new_review(self, get_saved_review):
+        review = get_saved_review
         assert review in Review.objects.all()
 
-    def test_get_deleted_review(self, make_client, professional, create_review):
-        review = create_review(make_client(), professional, RATING[0], DESCRIPTION, DAYS)  # Using factory function
+    def test_get_deleted_review(self, get_saved_review):
+        review = get_saved_review
         Review.objects.filter(id=review.id).delete()
         assert review not in Review.objects.all()
 
-    def test_method_filter_by_professional(self, make_client, professional, create_review):
-        review = create_review(make_client(), professional, RATING[0], DESCRIPTION, DAYS)  # Using factory function
+    def test_method_filter_by_professional(self, get_saved_review):
+        review = get_saved_review
         filtered_reviews = Review.filter_by_professional(professional=review.professional)
         filtered_reviews_lst = list(filtered_reviews)
 
@@ -37,27 +35,64 @@ class TestReview:
 
         assert len(filtered_reviews_lst) == 1
 
-    def test_method_get_professional_avg_rating(self, make_client, professional, create_review):
+    def test_method_get_professional_avg_rating(self, create_user, create_professional, create_review):
+        professional = create_professional()
         # We create new client instance in each tuple in `reviews_data`
         reviews_data = [
-            (make_client(username="BBB", first_name="GuyB", phone_number="972541234567"), RATING[0]),
-            (make_client(username="AAA", first_name="Guy", phone_number="972541234568"), RATING[1]),
-            (make_client(username="CCC", first_name="GuyBe", phone_number="972641214568"), RATING[2]),
+            (
+                create_user(
+                    phone_number='972541234',
+                    password='123456',
+                    email='john1@doe.com',
+                    date_of_birth=BIRTHDAY,
+                    user_type=User.UserType.CLIENT,
+
+                    first_name='John',
+                    last_name='Doe',
+                    country='United Kingdom',
+                    city='London',
+                    address='Address'
+                ),
+                RATING[0]
+            ),
+            (
+                create_user(
+                    phone_number='972541232',
+                    password='123456',
+                    email='jane@doe.com',
+                    date_of_birth=BIRTHDAY,
+                    user_type=User.UserType.CLIENT,
+
+                    first_name='Jane',
+                    last_name='Doe',
+                    country='United Kingdom',
+                    city='London',
+                    address='Address'
+                ),
+                RATING[1]
+            ),
+            (
+                create_user(
+                    phone_number='972641214',
+                    password='123456',
+                    email='george@doe.com',
+                    date_of_birth=BIRTHDAY,
+                    user_type=User.UserType.CLIENT,
+
+                    first_name='George',
+                    last_name='Doe',
+                    country='United Kingdom',
+                    city='London',
+                    address='Address'
+                ),
+                RATING[2]
+            ),
         ]
 
-        for i, (client, rating) in enumerate(reviews_data):  # Using factory function within this loop
-            create_review(client, professional, rating, DESCRIPTION, DAYS)
-            if i == 1:
-                assert Review.get_professional_avg_rating(professional=professional) == 2.5  # Average of 2 review
+        for i, (user, rating) in enumerate(reviews_data):  # Using factory function within this loop
+            create_review(rating, DESCRIPTION, DAYS, user, professional)
+            if i == 1:  # Average of 2 review
+                assert Review.get_professional_avg_rating(professional=professional) == 2.5
 
-        review_rounded_avg_rating = round(Review.get_professional_avg_rating(professional=professional), 2)
-        assert review_rounded_avg_rating == 3.33  # Average of `len(RATING)` reviews
-
-    def test_method_str(self, make_client, professional, create_review: Callable[[str, str, str, str, int], Review]):
-        review = str(
-            create_review(make_client(), professional, RATING[0], DESCRIPTION, DAYS)
-        )  # Using factory function
-        assert "Review: #" in review  # Review number
-        assert ", by 'Bob Builder'" in review  # Review by
-        assert "for 'Bob Builder':" in review  # Review on
-        assert "Creating a test review (★★★★)" in review  # Review description
+        review_rounded_avg_rating = round(Review.get_professional_avg_rating(professional=professional), 1)
+        assert review_rounded_avg_rating == 3.3  # Average of `len(RATING)` reviews

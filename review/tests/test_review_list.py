@@ -28,23 +28,35 @@ class ReviewListTemplateObjects(Enum):
 
 @pytest.mark.django_db
 class TestReviewList:
-    def test_list_is_up(self, client, professional, make_client):
+    def test_list_is_up(self, create_user, client, create_professional):
         # demo professional (no previous reviews)
-        client.force_login(make_client().profile_id.user_id)
+        user = create_user(
+
+        )
+        professional = create_professional(
+
+        )
+        client.force_login(user)
         response = client.get(reverse('reviews', kwargs={'pk': professional.pk}))
         assert response.status_code == 200
         assert REVIEW_LIST_TEMPLATE_NAME in response.templates[0].name
 
-    def test_template_buttons_of_new_professional(self, client, professional, make_client):
+    def test_template_buttons_of_new_professional(self, create_user, client, create_professional):
         # demo professional (no previous reviews)
-        client.force_login(make_client().profile_id.user_id)
+        user = create_user(
+
+        )
+        professional = create_professional(
+
+        )
+        client.force_login(user)
         # After creating a new professional, he should not have any reviews
         response = client.get(reverse('reviews', kwargs={'pk': professional.pk}))
         # Page with no reviews check
         assert ReviewListTemplateObjects.NO_REVIEWS.value in response.content
         assert ReviewListTemplateObjects.WRITE_REVIEW.value in response.content
         # Now we test the business page button
-        first_name = professional.profile_id.user_id.first_name
+        first_name = professional.user.first_name
         business_page_name = first_name + ReviewListTemplateObjects.BUSINESS_PAGE.value.decode()
         assert business_page_name.encode() in response.content
 
@@ -52,10 +64,15 @@ class TestReviewList:
         expected_review_count = 0
         assert len(reviews) == expected_review_count
 
-    def test_add_review_to_list(self, client, make_client, professional, create_review):
-        client_user = make_client()
+    def test_add_review_to_list(self, create_user, client, create_professional, create_review):
         # demo professional (no previous reviews)
-        client.force_login(client_user.profile_id.user_id)
+        user = create_user(
+
+        )
+        professional = create_professional(
+
+        )
+        client.force_login(user)
         original_review_count = len(
             client.get(
                 reverse(
@@ -65,15 +82,17 @@ class TestReviewList:
             ).context['reviews']
         )
         # After creating a new professional, and adding one review to him, he should have one review
-        create_review(client_user, professional, RATING, DESCRIPTION, DAYS)
+        create_review(user, professional, RATING, DESCRIPTION, DAYS)
         response = client.get(reverse('reviews', kwargs={'pk': professional.pk}))
         reviews = response.context['reviews']
         expected_review_count = original_review_count + 1
         assert len(reviews) == expected_review_count
 
-    def test_delete_review_from_list(self, client, make_client):
+    def test_delete_review_from_list(self, create_user, client):
         # demo professional (no previous reviews)
-        client.force_login(make_client().profile_id.user_id)
+        client.force_login(create_user(
+
+        ))
         original_review_count = len(
             client.get(
                 reverse(
@@ -82,7 +101,7 @@ class TestReviewList:
                 )
             ).context['reviews']
         )
-        Review.objects.filter(professional_id=PROFESSIONAL_ID).first().delete()
+        Review.objects.filter(professional=PROFESSIONAL_ID).first().delete()
         updated_review_count = len(
             client.get(
                 reverse(
@@ -94,9 +113,11 @@ class TestReviewList:
         expected_review_count = original_review_count - 1
         assert updated_review_count == expected_review_count
 
-    def test_template_buttons_of_existing_professional(self, client, make_client):
+    def test_template_buttons_of_existing_professional(self, create_user, client):
         # existing professional (with previous reviews)
-        client.force_login(make_client().profile_id.user_id)
+        client.force_login(create_user(
+
+        ))
         response = client.get(reverse('reviews', kwargs={'pk': PROFESSIONAL_ID}))
         # Page with existing reviews check
         assert ReviewListTemplateObjects.NEWEST.value in response.content
@@ -104,13 +125,15 @@ class TestReviewList:
         assert ReviewListTemplateObjects.HIGHEST.value in response.content
         assert ReviewListTemplateObjects.LOWEST.value in response.content
         # Now we test the business page button
-        first_name = Professional.filter_by_professional_id(PROFESSIONAL_ID).first().profile_id.user_id.first_name
+        first_name = Professional.get_professional_by_phone_number(PROFESSIONAL_ID).first().user.first_name
         business_page_name = first_name + ReviewListTemplateObjects.BUSINESS_PAGE.value.decode()
         assert business_page_name.encode() in response.content
 
-    def test_template_buttons_are_up_of_existing_professional(self, client, make_client):
+    def test_template_buttons_are_up_of_existing_professional(self, create_user, client):
         # existing professional (with previous reviews)
-        client.force_login(make_client().profile_id.user_id)
+        client.force_login(create_user(
+
+        ))
         response1 = client.get(reverse('reviews', kwargs={'pk': PROFESSIONAL_ID}) + SORT_BY_QUERY_PARAM + 'newest')
         assert response1.status_code == 200
         assert REVIEW_LIST_TEMPLATE_NAME in response1.templates[0].name
@@ -124,17 +147,22 @@ class TestReviewList:
         assert response4.status_code == 200
         assert REVIEW_LIST_TEMPLATE_NAME in response4.templates[0].name
 
-    def test_template_review_button_for_client(self, client, make_client, professional, create_review):
-        client_user = make_client()
+    def test_template_review_button_for_client(self, create_user, client, create_professional, create_review):
         # existing professional (with previous reviews)
-        client.force_login(client_user.profile_id.user_id)
+        user = create_user(
+
+        )
+        professional = create_professional(
+
+        )
+        client.force_login(user)
         # After creating a new professional, he should not have any reviews
         response1 = client.get(reverse('reviews', kwargs={'pk': professional.pk}))
         # `client_user` did not review the professional
         assert ReviewListTemplateObjects.WRITE_REVIEW.value in response1.content
         assert ReviewListTemplateObjects.EDIT_REVIEW.value not in response1.content
         # we add review
-        professional = Professional.objects.filter(professional_id=PROFESSIONAL_ID).first()
+        professional = Professional.objects.filter(professional=PROFESSIONAL_ID).first()
         create_review(client_user, professional, RATING, DESCRIPTION, DAYS)
         # now we check that `client_user` reviewed the professional before
         response2 = client.get(reverse('reviews', kwargs={'pk': PROFESSIONAL_ID}))

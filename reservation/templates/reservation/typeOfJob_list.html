@@ -27,14 +27,14 @@
                   </tr>
                 </thead>
                 <tbody>
-                  {% for typeOfjob in typeOfjobs_by_pro %}
+                  {% for job in type_of_jobs %}
                     <tr>
                       <th scope="row">{{ forloop.counter }}</th>
-                      <td>{{ typeOfjob.typeOfJob_name }}</td>
-                      <td>{{ typeOfjob.price }}</td>
+                      <td>{{ job.job_name }}</td>
+                      <td>{{ job.price }}</td>
                       <td>
-                        <a href="{% url 'typeOfJob_delete' typeOfjob.typeOfJob_id %}" class="btn btn-danger btn-sm">Delete</a>
-                        <a href="{% url 'typeOfJob_update' typeOfjob.typeOfJob_id %}" class="btn btn-success btn-sm">Edit</a>
+                        <a href="{% url 'typeOfJob_delete' job.ID %}" class="btn btn-danger btn-sm">Delete</a>
+                        <a href="{% url 'typeOfJob_update' job.ID %}" class="btn btn-success btn-sm">Edit</a>
                       </td>
                     </tr>
                   {% endfor %}

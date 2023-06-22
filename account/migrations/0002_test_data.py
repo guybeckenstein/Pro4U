@@ -1,9 +1,8 @@
-from account.models.professional import Professional, Professions
-from account.models.profile import Profile, UserType
-from account.models.client import Client
+from account.models.user import User
+from account.models.professional import Professional
+
 import datetime
 from django.db import migrations, transaction
-from django.contrib.auth.models import User
 
 
 class Migration(migrations.Migration):
@@ -11,52 +10,90 @@ class Migration(migrations.Migration):
         ('account', '0001_initial'),
     ]
 
-    def generate_data(apps, schema_editor):
-        test_data = [('TalTheUser', 'TalPassword', 'Tal', 'Reinfeld', 'tal@email.com', '111111111',
-                      'Israel', 'Tel Aviv', 'Address', Professions.Handyman, 'I am Tal'),
-                     ('IdoTheUser', 'TalPassword', 'Ido', 'Singer', 'ido@email.com', '222222222', 'Israel',
-                      'Rishon', 'Address', Professions.Handyman, 'I am Ido'),
-                     ('Ido2TheUser', 'Ido2Password', 'Ido2', 'Yekutiel', 'ido2@email.com', '333333333', 'Israel',
-                      'Tel Aviv', 'Address', Professions.Plumber, 'I am Ido2'),
-                     ('PatTheUser', 'PatPassword', 'Pat', 'Kaplun', 'pat@email.com', '444444444', 'Israel',
-                      'Netanya', 'Address', Professions.Electrician, 'I am Pat'),
-                     ('OfirTheUser', 'OfirPassword', 'Ofir', 'Bachar', 'ofir@email.com', '555555555', 'Israel',
-                      'Tel Aviv', 'Address', Professions.Handyman, 'I am Ofir'),
-                     ('GuyTheUser', 'GuyPassword', 'Guy', 'Beckenstain', 'guy@email.com', '666666666', 'Israel',
-                      'Givatayim', 'Address', Professions.Electrician, 'I am Guy')]
+    def generate_professionals_data(apps, schema_editor):
+        test_data = [
+            (
+                111111111, 'TalPassword', 'tal@email.com',
+                'Tal', 'Reinfeld', 'Israel', 'Tel Aviv',
+                Professional.Professions.Handyman
+            ),
+            (
+                222222222, 'TalPassword', 'ido@email.com',
+                'Ido', 'Singer', 'Israel', 'Rishon',
+                Professional.Professions.Handyman
+            ),
+            (
+                333333333, 'Ido2Password', 'ido2@email.com',
+                'Ido', 'Yekutiel', 'Israel', 'Tel Aviv',
+                Professional.Professions.Plumber
+            ),
+            (
+                444444444, 'PatPassword', 'pat@email.com',
+                'Patrisia', 'Kaplun', 'Israel', 'Netanya',
+                Professional.Professions.Electrician
+            ),
+            (
+                555555555, 'OfirPassword', 'ofir@email.com',
+                'Ofir', 'Bachar', 'Israel', 'Tel Aviv',
+                Professional.Professions.Handyman
+            ),
+            (
+                666666666, 'GuyPassword', 'guy@email.com',
+                'Guy', 'Beckenstein', 'Israel', 'Givatayim',
+                Professional.Professions.Electrician
+            )
+        ]
         with transaction.atomic():
-            for (username, password, first_name, last_name, email, phone_number, country, city, address, profession,
-                 description) in test_data:
-                user = User.objects.create_user(username=username, password=password, first_name=first_name,
-                                                last_name=last_name, email=email,
-                                                last_login=datetime.datetime.now())
-                profile = Profile(user_id=user, user_type=UserType.Professional, phone_number=phone_number,
-                                  country=country, city=city, address=address)
-                professional = Professional(profile_id=profile, profession=profession, description=description)
-                professional.profile_id.user_id.save()
-                professional.profile_id.save()
+            for (phone_number, password, email, first_name, last_name, country, city, profession) in test_data:
+                user = User.objects.create_user(
+                    phone_number=phone_number,
+                    password=password,
+                    email=email,
+                    date_of_birth=datetime.datetime.now(),
+                    image=f'/profile_pics/{first_name}{last_name}.jpg',
+                    type=User.UserType.PROFESSIONAL,
+
+                    first_name=first_name,
+                    last_name=last_name,
+                    country=country,
+                    city=city,
+                    address='Address',
+                )
+                professional = Professional(user=user, profession=profession)
                 professional.save()
 
-    def generate_data2(apps, schema_editor):
-        test_data = [('C1TheUser', 'C1Password', 'Client1', 'Client1', 'Client1@email.com', '7777777777', 'Israel',
-                      'Tel Aviv', 'Address'),
-                     ('C2TheUser', 'C2Password', 'Client2', 'Client2', 'Client2@email.com', '8888888888', 'Israel',
-                      'Netanya', 'Address'),
-                     ('C3TheUser', 'C3Password', 'Client3', 'Client3', 'Client3@email.com', '9999999999', 'Israel',
-                      'Tel Aviv', 'Address')]
+    def generate_clients_data(apps, schema_editor):
+        test_data = [
+            (
+                7777777777, 'C1Password', 'Client1@email.com',
+                'Client1', 'Client1', 'Israel', 'Tel Aviv'
+            ),
+            (
+                8888888888, 'C2Password', 'Client2@email.com',
+                'Client2', 'Client2', 'Israel', 'Netanya'
+            ),
+            (
+                9999999999, 'C3Password', 'Client3@email.com',
+                'Client3', 'Client3', 'Israel', 'Tel Aviv'
+            ),
+        ]
         with transaction.atomic():
-            for (username, password, first_name, last_name, email, phone_number, country, city, address) in test_data:
-                user = User.objects.create_user(username=username, password=password, first_name=first_name,
-                                                last_name=last_name, email=email,
-                                                last_login=datetime.datetime.now())
-                profile = Profile(user_id=user, user_type=UserType.Client, phone_number=phone_number,
-                                  country=country, city=city, address=address)
-                client = Client(profile_id=profile, birthday=datetime.date(2000, 1, 1))
-                client.profile_id.user_id.save()
-                client.profile_id.save()
-                client.save()
+            for (phone_number, password, email, first_name, last_name, country, city) in test_data:
+                user = User.objects.create_user(
+                    phone_number=phone_number,
+                    password=password,
+                    email=email,
+                    date_of_birth=datetime.datetime.now(),
+                    type=User.UserType.CLIENT,
+
+                    first_name=first_name,
+                    last_name=last_name,
+                    country=country,
+                    city=city,
+                    address='Address',
+                ).save()
 
     operations = [
-        migrations.RunPython(generate_data),
-        migrations.RunPython(generate_data2),
+        migrations.RunPython(generate_professionals_data),
+        migrations.RunPython(generate_clients_data),
     ]

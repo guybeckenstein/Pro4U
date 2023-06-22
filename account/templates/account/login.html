@@ -1,32 +1,42 @@
-{%extends 'landing/base.html'%}
-{%load static %}
+{% extends 'landing/base.html'%}
+{% load static %}
+
 <!--Add stylesheets dynamically-->
 {% block head_content %}
-    <link rel="stylesheet" href="{% static 'css/base_style.css' %}">
+  <link rel="stylesheet" href="{% static 'css/base_style.css' %}">
 {% endblock %}
+
 <!--Add web title dynamically-->
 {% block title %}
-    Login
+  Login
 {% endblock %}
-<!--Add body content dynamically-->
-{%block content%}
-  <div class="center login-center" style="margin-top: -50px;">
-        <!--Login input-->
-	  <form method="post" class="card" novalidate style="margin-top: 100px">
-	  	{% csrf_token %}
-	    <h2 class="text-center">Log in to your account</h2>
-		{% for field in form %}
-	    		{{ field.label_tag }}
-	        	{{ field }}
-	        	{% if field.errors %}
-	        		<small>{{ field.errors|striptags  }}</small>
-	        	{% endif %}
-		{% endfor %}
 
-		<input type="submit" value="Login" class="btn btn-primary full-width">
-		<hr>
-		<p class="text-center">Don't have a account? <a href="">Join Now</a></p>
-	</form>
+<!--Add body content dynamically-->
+{% block content %}
+  <div class="center login-center" style="margin-top: -50px;">
+    <!--Login input-->
+    <form method="post" class="card" novalidate style="margin-top: 100px">
+      {% csrf_token %}
+      <h2 class="text-center">
+        Log in to your account
+      </h2>
+      {% for field in form %}
+        {{ field.label_tag }}
+        {{ field }}
+        {% if field.errors %}
+          <small>
+            {{ field.errors|striptags }}
+          </small>
+        {% endif %}
+      {% endfor %}
+      <input type="submit" value="Login" class="btn btn-primary full-width">
+    <p class="text-center">
+      Don't have an account?
+      <a href="">
+        Join Now
+      </a>
+    </p>
+  </form>
 </div>
 
-{%endblock content%}
+{% endblock content %}

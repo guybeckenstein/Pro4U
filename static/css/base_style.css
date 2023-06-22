@@ -15,25 +15,8 @@
   --color-input: #00d1b2;
    --border-radius: 5px;
 }
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  text-rendering: optimizeLegibility;
-}
 
-html,
-body {
-  height: 100%;
-}
-
-input,
-button,
-textarea {
-  font: inherit;
-}
-
-body {
+.vh-100 {
   font-family: 'Dosis', sans-serif;
   font-size: 1rem;
   line-height: 1.7;

@@ -1,4 +1,4 @@
-{% extends "landing/base.html" %}
+{% extends "account/profile.html" %}
 {% load static %}
 
 {% block title %}
@@ -7,8 +7,8 @@
 
 {% block content %}
   <div class="container">
-    <div class="row" style="margin-top: 156px;">
-      <div class="col-md-6">
+    <div class="row"  {% if request.user.is_authenticated is False %} style="margin-top: 156px;" {% endif %}>
+      <div class="col-md-6" style="margin-left: 20px;">
         <h2>Pro4U</h2>
         <h2>Innovative Solution!</h2>
         <div class="list-group">
@@ -26,11 +26,11 @@
         </a>
         </div>
       </div>
-      <div class="col-md-6">
+      <div class="col-md">
         <div class="row">
           {% for member in team_members %}
             <div class="col-4 mb-4">
-              <div class="card">
+              <div class="card" style="cursor: pointer;">
                 <img src="{% static member.img %}" class="card-img-top" alt="{{ member.alt }}" style="height: 194px; width: 100%; object-fit: cover;">
                 <div class="card-body">
                   <h6 class="card-title">{{ member.name }}</h6>

@@ -1,0 +1,87 @@
+{% extends 'account/profile.html' %}
+{% load static %}
+
+{% block center-content %}
+  <div class="container">
+    <div class="d-grid gap-3">
+      <h5 class="head-line-label">
+        Fill one or more of the following filters to search:
+      </h5>
+      <form method="post">
+        {% csrf_token %}
+        <label class="form-label" for="profession" style="font-weight: 600; margin-bottom: -3px; margin-top: 10px;">
+          Profession
+        </label>
+        <input type="text" class="form-control" id="profession" name="profession" placeholder="Profession">
+        <label class="form-label" for="first-name" style="font-weight: 600; margin-bottom: -3px; margin-top: 10px;">
+          First name
+        </label>
+        <input type="text" class="form-control" id="first-name" name="first-name" placeholder="First name">
+        <label class="form-label" for="last-name" style="font-weight: 600; margin-bottom: -3px; margin-top: 10px;">
+          Last name
+        </label>
+        <input type="text" class="form-control" id="last-name" name="last-name" placeholder="Last name">
+        <label class="form-label" for="city" style="font-weight: 600; margin-bottom: -3px; margin-top: 10px;">
+          City name
+        </label>
+        <input type="text" class="form-control" id="city" name="city" placeholder="City">
+        <button class="btn btn-dark" type="submit" style="margin: 20px 0;">
+          Search
+        </button>
+      </form>
+    </div>
+    <h6>
+      Search results:
+    </h6>
+    <div class="d-grid gap-3">
+      {% for professional in professionals.all %}
+        <div class="card">
+          <div class="card-body">
+            <form method="post" action="{% url 'show-professional' professional.id %}">
+              {% csrf_token %}
+              <h5 class="card-title">
+                {{ professional.user.first_name }} {{ professional.user.last_name }}
+              </h5>
+              <h6 class="card-subtitle mb-2 text-muted">
+                {{ professional.user.city }}
+              </h6>
+              <p class="card-text">
+                {{ professional.get_profession_display }}
+              </p>
+              <input type="hidden" name="profession" value="{{ professional.profession }}">
+              <input type="hidden" name="first_name" value="{{ professional.user.first_name }}">
+              <input type="hidden" name="last_name" value="{{ professional.user.last_name }}">
+              <input type="hidden" name="city" value="{{ professional.user.city }}">
+              <button class="btn btn-warning" type="submit">
+                Open
+              </button>
+            </form>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+    <div class="d-grid gap-3">
+      <h6>
+        The last five searches:
+      </h6>
+      <div class="search-history-grid">
+        {% for search in last_searches.all %}
+          <div class="search-history-box">
+            <h5 class="card-title">
+              {{ professional.user.first_name }} {{ professional.user.last_name }}
+            </h5>
+            <h6 class="card-subtitle mb-2 text-muted">
+              {{ professional.user.city }}
+            </h6>
+            <p class="card-text">
+              {{ professional.get_profession_display }}
+            </p>
+            <p class="card-text">
+              Was searched on {{ search.date }}
+            </p>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+{% endblock %}

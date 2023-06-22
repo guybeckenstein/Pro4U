@@ -1,0 +1,129 @@
+{% extends 'account/profile.html' %}
+{% load static %}
+{% load custom_tags %}
+
+{% block center-content %}
+  <div class="container">
+    <!-- Breadcrumb navigation -->
+    <nav aria-label="breadcrumb" class="main-breadcrumb">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item">
+          <a href="{% url 'homepage' %}">
+            Home
+          </a>
+        </li>
+        <li class="breadcrumb-item active" aria-current="page">
+          Profile
+        </li>
+      </ol>
+    </nav>
+    <!-- Profile details -->
+    <div class="row">
+      <div class="col-md-8">
+        <div class="card mb-3">
+          <div class="card-body">
+            <div class="row">
+              <div class="col-sm-3">
+                <h6 class="mb-0">
+                  Full Name
+                </h6>
+              </div>
+              <div class="col-sm-9 text-secondary">
+                {{ user.first_name }} {{ user.last_name }}
+              </div>
+            </div>
+            <hr>
+            <div class="row">
+              <div class="col-sm-3">
+                <h6 class="mb-0">
+                  Phone
+                </h6>
+              </div>
+              <div class="col-sm-9 text-secondary">
+                {{ user.phone_number }}
+              </div>
+            </div>
+            <hr>
+            <div class="row">
+              <div class="col-sm-3">
+                <h6 class="mb-0">
+                  Email
+                </h6>
+              </div>
+              <div class="col-sm-9 text-secondary">
+                {{ user.email }}
+              </div>
+            </div>
+            <hr>
+            <div class="row">
+              <div class="col-sm-3">
+                <h6 class="mb-0">
+                  Birthday
+                </h6>
+              </div>
+              <div class="col-sm-9 text-secondary">
+                {{ user.date_of_birth }}
+              </div>
+            </div>
+            <hr>
+            <div class="row">
+              <div class="col-sm-3">
+                <h6 class="mb-0">
+                  Country
+                </h6>
+              </div>
+              <div class="col-sm-9 text-secondary">
+                {{ user.country }}
+              </div>
+            </div>
+            <hr>
+            <div class="row">
+              <div class="col-sm-3">
+                <h6 class="mb-0">
+                  City
+                </h6>
+              </div>
+              <div class="col-sm-9 text-secondary">
+                {{ user.city }}
+              </div>
+            </div>
+            <hr>
+            <div class="row">
+              <div class="col-sm-3">
+                <h6 class="mb-0">
+                  Address
+                </h6>
+              </div>
+              <div class="col-sm-9 text-secondary">
+                {{ user.address }}
+              </div>
+            </div>
+            {% if user.user_type == User.user_type.PROFESSIONAL %}
+              <hr>
+              <div class="row">
+                <div class="col-sm-3">
+                  <h6 class="mb-0">
+                    Profession
+                  </h6>
+                </div>
+                <div class="col-sm-9 text-secondary">
+                  {% with professional=request.user|retrieve_professional_by_phone_number %}
+                    {% if professional is not None %}
+                      {{ professional.get_profession_display }}
+                    {% endif %}
+                  {% endwith %}
+                </div>
+              </div>
+            {% endif %}
+            <hr>
+            <div class="d-grid col-2">
+              <a class="btn btn-dark" href="{% url 'profile_edit' %}">
+                Edit Profile
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

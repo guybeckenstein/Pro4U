@@ -1,0 +1,38 @@
+{% extends 'account/profile.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+{% block center-content %}
+  <div class="container">
+    <!-- Breadcrumb navigation -->
+    <nav aria-label="breadcrumb" class="main-breadcrumb">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item">
+          <a href="{% url 'homepage' %}">
+            Home
+          </a>
+        </li>
+        <li class="breadcrumb-item">
+          <a href="{% url 'profile_settings' %}">
+            Profile
+          </a>
+        </li>
+        <li class="breadcrumb-item active" aria-current="page">
+          Edit
+        </li>
+      </ol>
+    </nav>
+    <!--Edit (update) form-->
+    <div class="card col-xl-9">
+      <div class="card-body">
+        <fieldset class="form-group">
+          <legend>
+            Edit Profile Details
+          </legend>
+          <hr>
+          {% crispy form %}
+        </fieldset>
+      </div>
+    </div>
+  </div>
+{% endblock %}

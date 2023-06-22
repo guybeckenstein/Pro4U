@@ -9,35 +9,28 @@
 {% block center-content %}
   <div class="container">
     <div class="row">
-      {% if request.user.is_authenticated %}
-        {% with client=request.user|retrieve_client_by_user_id %}
-          {% if client %}
+      {% if request.user.is_authenticated is True %}
+        {% with user=request.user|retrieve_user_by_phone_number %}
+          {% if user is not None %}
             {% for professional in professionals %}
               <div class="col-md-3" style="margin-bottom: 18px;">
-                <div style="">
-                  <a href="{% url 'show_business_page' professional.professional_id %}" style="text-decoration: none;">
-                    <!-- TODO: add link to profile -->
-                    {% if professional.thumbnail %}
-                      <img class="img-fluid" src="{% static professional.thumbnail %}">
-                    {% else %}
-                      <img class="img-fluid" src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/No-Image-Placeholder.svg/1665px-No-Image-Placeholder.svg.png">
-                    {% endif %}
-                    <div class="d-flex justify-content-between align-items-center mt-2">
-                      <div class="text-left text-dark fw-semibold">
-                        {{ professional.profile_id.user_id.get_full_name }}
-                      </div>
-                      <div class="text-right text-dark fw-semibold">
-                        <strong style="color: rgb(255, 215, 0);">&#9733;</strong> {{ professional.avg_rating }}
-                      </div>
+                <a href="{% url 'business_page' professional.id %}" style="text-decoration: none;">
+                  <img class="img-fluid" src="{{ professional.user.image.url }}" style="border-radius: 2%; object-fit: cover; height: 255px; width: 255px;">
+                  <div class="d-flex justify-content-between align-items-center mt-2">
+                    <div class="text-left text-dark fw-semibold">
+                      {{ professional.user.get_full_name }}
                     </div>
-                    <div class="text-body-secondary">
-                      {{ professional.profile_id.city }}
+                    <div class="text-right text-dark fw-semibold">
+                      <strong style="color: rgb(255, 215, 0);">&#9733;</strong> {{ professional.avg_rating }}
                     </div>
-                    <div class="text-body-secondary">
-                      {{ professional.get_profession_display }}
-                    </div>
-                  </a>
-                </div>
+                  </div>
+                  <div class="text-body-secondary">
+                    {{ professional.user.city }}
+                  </div>
+                  <div class="text-body-secondary">
+                    {{ professional.get_profession_display }}
+                  </div>
+                </a>
               </div>
             {% endfor %}
           {% endif %}
@@ -45,7 +38,7 @@
       {% else %}
         <div class="vstack gap-2 col-md-5 mx-auto text-center text-danger">
           <h1>
-            This page is only available to authorized clients
+            This page is only available to authorized users
           </h1>
         </div>
       {% endif %}

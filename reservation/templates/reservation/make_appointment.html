@@ -1,11 +1,15 @@
 {% extends 'base_reservation.html' %}
 
 {% block center-content %}
-<div class="clearfix">
-	<a class="btn btn-info right mr-2" href="{% url 'make_appointment'  professional_id  %}?{{ next_month }} "> Next Month >> </a>
-    <a class="btn btn-info right mr-2" href="{% url 'make_appointment'  professional_id  %}?{{ prev_month }}"> << Previous Month </a>
-</div>
-<div style="color: blueviolet;">
+  <div class="clearfix">
+    <a class="btn btn-info right mr-2" href="{% url 'make_appointment' professional_id  %}?{{ next_month }}">
+      Next Month >>
+    </a>
+    <a class="btn btn-info right mr-2" href="{% url 'make_appointment' professional_id  %}?{{ prev_month }}">
+      << Previous Month
+    </a>
+  </div>
+  <div style="color: blueviolet;">
     {{ calendar }}
-</div>
+  </div>
 {% endblock %}

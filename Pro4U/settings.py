@@ -29,19 +29,23 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    # Built-in apps
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'landing.apps.LandingConfig',
-    'review.apps.ReviewConfig',
-    'reservation.apps.ReservationConfig',
-    'chatmessage.apps.ChatmessageConfig',
-    'SearchHistory.apps.SearchHistoryConfig',
-    'proImages.apps.ProImagesConfig',
+    # Created apps
     'account.apps.AccountConfig',
+    'chat.apps.ChatConfig',
+    'landing.apps.LandingConfig',
+    'reservation.apps.ReservationConfig',
+    'review.apps.ReviewConfig',
+    'search.apps.SearchConfig',
+    # Third party apps
+    "crispy_bootstrap5",
+    "crispy_forms",
 ]
 
 MIDDLEWARE = [
@@ -85,7 +89,6 @@ DATABASES = {
     }
 }
 
-
 # Password validation
 # https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators
 
@@ -125,12 +128,19 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static')
 ]
 
-MEDIA_ROOT = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_URL = '/media/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
+
+CRISPY_TEMPLATE_PACK = "bootstrap5"
+
+AUTH_USER_MODEL = 'account.User'
+
 LOGIN_URL = '/login/'
+LOGOUT_REDIRECT_URL = '/'

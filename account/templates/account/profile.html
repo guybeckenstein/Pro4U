@@ -2,79 +2,85 @@
 {% load static %}
 
 {% block head_content %}
-    <!--Add stylesheets dynamically-->
-    {% block head_content2 %}
-    {% endblock %}
-    <link rel="stylesheet" type="text/css" href="{% static 'css/profile.css' %}">
-    <link href=https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css rel="stylesheet"
-    integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl" crossorigin="anonymous">
-    <script src=https://kit.fontawesome.com/297bbe7878.js crossorigin="anonymous"></script>
+  <!--Add stylesheets dynamically-->
+  {% block head_content2 %}
+  {% endblock %}
+  <link rel="stylesheet" type="text/css" href="{% static 'css/profile.css' %}">
+  <script src=https://kit.fontawesome.com/297bbe7878.js crossorigin="anonymous"></script>
 {% endblock %}
-{% block title %}{{ user.first_name}}'s Profile{% endblock %}
-{% block content %}
+
+{% block title %}
+  {{ user.first_name }}'s Profile
+{% endblock %}
+
+{% block sidebar %}
   {% if request.user.is_authenticated %}
-    <div>
-        <div class="container-fluid" style="margin-top: 50px; float: left; width: 30; margin-bottom: 59px;">
-            <div class="row">
-                <div class="col-md-2 static">
-                    <div class="profile-card">
-                        <img src="{% static 'img/blank_profile.png' %}" alt="user" class="profile-photo">
-                        <h5><a href="#" class="text-white">{{user.first_name}}</a></h5>
-                    </div>
-                    <ul class="nav-news-feed">
-                        {% if user.profile.user_type == 'C' %}
-                            <li><i class="fa fa-list-alt icon1"></i><div><div class="litext">
-                            <a href="{% url 'homepage' %}">
-                                Feed
-                            </a>
-                            </div></div></li>
-                        {%endif%}
-                           <li><i class="fa fa-comments icon4"></i><div><div class="litext">
-                            <a href="{% url 'all_chats'%}">
-                            Messages
-                            </a>
-                        </div></div></li>
-                        <li><i class="fas fa-calendar-alt"></i><div><div class="litext">
-                            <a href="{% url 'my_appointments'%}">
-                            My Appointments
-                            </a>
-                        </div></div></li>
-                        {% if user.profile.user_type == 'P' %}
-                            <li><i class="fas fa-briefcase"></i><div><div class="litext">
-                            <a href="{% url 'typeOfJob'%}">
-                                Type Of Jobs
-                            </a>
-                            </div></div></li>
-                            <li><i class="far fa-clock"></i><div><div class="litext">
-                            <a href="{% url 'calendar'%}">
-                                Schedule
-                            </a>
-                            </div></div></li>
-                            <li><i class="far fa-star"></i><div><div class="litext">
-                            <a href="{% url 'reviews' user.profile.professional.professional_id%}">
-                                Reviews
-                            </a>
-                            </div></div></li>
-                        {% elif user.profile.user_type == 'C' %}
-                            <li><i class="fa fa-search"></i><div><div class="litext">
-                            <a href="#">
-                                Search
-                            </a>
-                            </div></div></li>
-                        {% endif %}
-                            <li><i class="fas fa-cog"></i><div><div class="litext">
-                            <a href="/profile/settings/">
-                            Settings
-                            </a>
-                        </div></div></li>
-                    </ul>
-                </div>
-                <div class="col-md-10">
-                    {% block center-content %}
-                    {% endblock %}
-                </div>
-            </div>
+    <div class="container-fluid" style="margin-top: 50px; float: left; margin-bottom: 59px;">
+      <div class="row">
+        <!--Sidebar-->
+        <div class="col-md-2 fixed-top" style="top: 150px;">
+          <div style="margin-bottom: 0; height: 90px; background-color: #8dc63f; color: #ffffff; border-radius: 8px 8px 0 0; padding: 10px 0 0 20px;">
+            <img src="{{ user.image.url }}" alt="user" height="80" width="80" style="border-radius: 50%; position: relative; top: -30px; float: left; margin-right: 20px;">
+            <h5>
+              {{ user.first_name }}
+            </h5>
+            <small style="color: rgba(100, 100, 100, .5);">
+              {{ user.email }}
+            </small>
+            {% if user.user_type == user_types.PROFESSIONAL %}
+              <p class="text-muted font-size-sm">
+                {{ user.profile.professional.profession }}
+              </p>
+            {% endif %}
+          </div>
+          <div class="list-group list-group-flush border-bottom">
+            <a class="list-group-item py-3" href="{% url 'profile_landing' %}">
+              <i class="fas fa-user" style="color: #8dc63f"></i>
+              Profile
+            </a>
+            {% if user.user_type == user_types.CLIENT %}
+              <a class="list-group-item py-3" href="{% url 'homepage' %}">
+                <i class="fa fa-list-alt icon1" style="color: #8dc63f"></i>
+                Feed
+              </a>
+              <a class="list-group-item py-3" href="{% url 'search-history' user.id %}">
+                <i class="fa fa-search" style="color: #8dc63f"></i>
+                Search
+              </a>
+            {% elif user.user_type == user_types.PROFESSIONAL %}
+              <a class="list-group-item py-3" href="{% url 'jobs' %}">
+                <i class="fas fa-briefcase" style="color: #8dc63f"></i>
+                Type Of Jobs
+              </a>
+              <a class="list-group-item py-3" href="{% url 'calendar' %}">
+                <i class="far fa-clock" style="color: #8dc63f"></i>
+                Schedule
+              </a>
+              <a class="list-group-item py-3" href="{% url 'reviews' user.profile.professional.id %}">
+                <i class="far fa-star" style="color: #8dc63f"></i>
+                Reviews
+              </a>
+            {% endif %}
+            <a class="list-group-item py-3" href="{% url 'my_appointments' %}">
+              <i class="fas fa-calendar-alt" style="color: #8dc63f"></i>
+              My Appointments
+            </a>
+            <a class="list-group-item py-3" href="{% url 'all_chats' %}">
+              <i class="fa fa-comments icon4" style="color: #8dc63f"></i>
+              Messages
+            </a>
+            <a class="list-group-item py-3" href="{% url 'profile_settings' %}">
+              <i class="fas fa-cog" style="color: #8dc63f"></i>
+              Settings
+            </a>
+          </div>
         </div>
+        <!--Other content-->
+        <div class="col-md-10 mx-auto" style="width: 60%; margin-top: 100px;">
+          {% block center-content %}
+          {% endblock %}
+        </div>
+      </div>
     </div>
   {% endif %}
 {% endblock %}

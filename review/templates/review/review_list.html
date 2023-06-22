@@ -3,7 +3,7 @@
 
 <!-- Reviews - Joe Doe -->
 {% block title %}
-  Reviews about {{ professional.profile_id.user_id.first_name }} {{ professional.profile_id.user_id.last_name }}
+  Reviews about {{ professional.user.first_name }} {{ professional.user.last_name }}
 {% endblock %}
 
 {% block center-content %}
@@ -37,15 +37,15 @@
               </a>
             </div>
             <div style="position: absolute; top: 15%; right: 0;">
-              <a class="btn btn-dark" href="{% url 'show_business_page' professional.professional_id %}">
-                {{ professional.profile_id.user_id.first_name }}'s Business Page
+              <a class="btn btn-dark" href="{% url 'business_page' professional.id %}">
+                {{ professional.user.first_name }}'s Business Page
               </a>
               {% if not user_review %}
-                <a class="btn btn-primary" href="{% url 'review-create' pk=professional.pk %}">
+                <a class="btn btn-primary" href="{% url 'review-create' professional.id %}">
                   Write a review
                 </a>
               {% else %}
-                <a class="btn btn-primary" href="{% url 'review-update' pk=professional.pk %}">
+                <a class="btn btn-primary" href="{% url 'review-update' professional.id %}">
                   Edit your review
                 </a>
               {% endif %}
@@ -58,11 +58,7 @@
             <div class="card mb-3 infinite-item">
               <div class="row g-0">
                 <div class="col-md-2">
-                  {% if review.client.profile_id.img %}
-                    <img src="{{ review.client.profile_id.img }}" width="125" alt="{{ review.client.profile_id.user_id.first_name }} {{ review.client.profile_id.user_id.last_name }}">
-                  {% else %}
-                    <img src="{% static 'img/blank_profile.png' %}" width="125" alt="{{ review.client.profile_id.user_id.first_name }} {{ review.client.profile_id.user_id.last_name }}">
-                  {% endif %}
+                  <img src="{{ review.user.image.url }}" width="125" alt="{{ review.user.first_name }} {{ review.user.last_name }}">
                 </div>
                 <div class="col-md-10">
                   <div class="card-body">
@@ -83,7 +79,7 @@
                     <!-- Review's client full name & date posted -->
                     <div class="d-flex align-items-start">
                       <p class="card-title d-inline" style="font-weight: 600;">
-                        {{ review.client.profile_id.user_id.first_name }} {{ review.client.profile_id.user_id.last_name }}
+                        {{ review.user.first_name }} {{ review.user.last_name }}
                       </p>
                       <p style="margin: 0 5px;">
                         &#183;
@@ -99,7 +95,7 @@
                       <div class="card-body">
                         <div class="d-flex align-items-start">
                           <p class="card-title d-inline" style="font-weight: 600;">
-                            {{ review.reply.profile_id.user_id.first_name }} {{ review.reply.profile_id.user_id.last_name }}
+                            {{ review.reply.user.first_name }} {{ review.reply.user.last_name }}
                           </p>
                           <p style="margin: 0 5px;">
                             &#183;
@@ -130,8 +126,8 @@
         <a class="btn btn-primary" href="{% url 'review-create' pk=professional.pk %}">
           Write a review
         </a>
-        <a class="btn btn-dark" href="{% url 'show_business_page' professional.professional_id %}">
-          {{ professional.profile_id.user_id.first_name }}'s Business Page
+        <a class="btn btn-dark" href="{% url 'business_page' professional.id %}">
+          {{ professional.user.first_name }}'s Business Page
         </a>
       </div>
     {% endif %}

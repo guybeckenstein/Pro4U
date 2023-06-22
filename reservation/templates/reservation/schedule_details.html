@@ -1,19 +1,33 @@
 {% extends 'base_reservation.html' %}
 
 {% block reservation_content %}
-    <div class="container">
-        <div class="clearfix">
-            <a class="btn btn-primary left" href="{% url 'calendar' %}"> Calendar </a>
-            <a class="btn btn-info right mr-2" href="{% url 'schedule_edit' schedule.pk %}"> Edit Schedule </a>
-            <a class="btn btn-info right mr-2" href="{% url 'remove_schedule' schedule.pk %}"> Delete Schedule </a>
-        </div>
-
-        <div class="clearfix">
-            <h3>Schedule Details</h3>
-             <p>Start day: {{ schedule.start_day }}</p>
-             <p>End day: {{ schedule.end_day }}</p>
-            <p>Meeting time: {{ schedule.meeting_time }}</p>
-        </div>
-        <hr>
+  <div class="container">
+    <div class="clearfix">
+      <a class="btn btn-primary left" href="{% url 'calendar' %}">
+        Calendar
+      </a>
+      <a class="btn btn-info right mr-2" href="{% url 'schedule_edit' schedule.pk %}">
+        Edit Schedule
+      </a>
+      <a class="btn btn-info right mr-2" href="{% url 'remove_schedule' schedule.pk %}">
+        Delete Schedule
+      </a>
     </div>
+
+    <div class="clearfix">
+      <h3>
+        Schedule Details
+      </h3>
+      <p>
+        Start day: {{ schedule.start_day }}
+      </p>
+      <p>
+        End day: {{ schedule.end_day }}
+      </p>
+      <p>
+        Meeting time: {{ schedule.meeting_time }}
+      </p>
+    </div>
+    <hr>
+  </div>
 {% endblock %}

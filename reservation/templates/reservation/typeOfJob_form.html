@@ -3,34 +3,44 @@
 
 <!-- Add Bootstrap stylesheets -->
 {% block head_content2 %}
-    <link rel="stylesheet" href="{% static 'css/base_style.css' %}">
+  <link rel="stylesheet" href="{% static 'css/base_style.css' %}">
 {% endblock %}
 
 {% block center-content %}
-    <div class="container" style="margin-left: -200px; width: 120%;">
-        <div class="row justify-content-center">
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-body">
-                        <h2 class="card-title">Create TypeOfJob</h2>
-                        <form method="post" novalidate>
-                            {% csrf_token %}
-                            {% for field in form %}
-                                <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
-                                {{ field }}
-                                {% if field.errors %}
-                                        <small class="error">{{ field.errors|striptags  }}</small>
-                                {% endif %}
-                            {% endfor %}
-                            <div class="form-group" style="margin-top: 20px;">
-                                <button type="submit" class="btn" style="background-color: orange;">Save</button>
-                                <a href="{% url 'typeOfJob' %}" class="btn" style="background-color: black; color: white;">Cancel</a>
-                            </div>
-                        </form>
-                        <img src="{% static 'img/jobs.jpg' %}" style="position: absolute; bottom: -250px; right: -450px; width: 400px; height: 300px;" alt="Image">
-                    </div>
-                </div>
-            </div>
+  <div class="container" style="margin-left: -200px; width: 120%;">
+    <div class="row justify-content-center">
+      <div class="col-md-6">
+        <div class="card">
+          <div class="card-body">
+            <h2 class="card-title">
+              Create TypeOfJob
+            </h2>
+            <form method="post" novalidate>
+              {% csrf_token %}
+              {% for field in form %}
+                <label class="form-label">
+                  {{ field.label }}
+                </label>
+                {{ field }}
+                {% if field.errors %}
+                  <small class="error">
+                    {{ field.errors|striptags }}
+                  </small>
+                {% endif %}
+              {% endfor %}
+              <div class="form-group" style="margin-top: 20px;">
+                <button type="submit" class="btn" style="background-color: orange;">
+                  Save
+                </button>
+                <a href="{% url 'jobs' %}" class="btn" style="background-color: black; color: white;">
+                  Cancel
+                </a>
+              </div>
+            </form>
+            <img src="{% static 'img/jobs.jpg' %}" style="position: absolute; bottom: -250px; right: -450px; width: 400px; height: 300px;">
+          </div>
         </div>
+      </div>
     </div>
+  </div>
 {% endblock %}

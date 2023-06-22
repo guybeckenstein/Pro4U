@@ -1,12 +1,13 @@
-from reservation.models import Schedule, TypeOfJob, Appointment
+from reservation.models import Schedule, PriceList, Appointment
 from account.models.professional import Professional
-from account.models.client import Client
+from account.models.user import User
+
 from django.shortcuts import render, redirect
 from django.http import HttpResponseRedirect
 from django.views import generic
 from django.utils.safestring import mark_safe
 from reservation.utils import Calendar
-from reservation.forms import ScheduleForm, TypeOfJobForm
+from reservation.forms import ScheduleForm, PriceListForm
 from django.contrib import messages
 from datetime import datetime, timedelta, date
 from django.utils import timezone
@@ -21,41 +22,40 @@ now = timezone.now().astimezone(israel_tz)
 
 
 @login_required
-def typeOfJob_list(request):
+def jobs_list(request):
     if request.method == 'GET':
-        typeOfjob = list(TypeOfJob.objects.filter(professional_id__profile_id__user_id=request.user))
+        type_of_jobs = []
+        typeOfjob = list(PriceList.objects.filter(professional__user__phone_number=request.user))
         if typeOfjob:
-            typeOfjobs_by_pro = TypeOfJob.get_typeofjobs_by_professional(typeOfjob[0].professional_id.professional_id)
-            return render(request, "reservation/typeOfJob_list.html", {'typeOfjobs_by_pro': typeOfjobs_by_pro})
-        else:
-            return render(request, "reservation/typeOfJob_list.html", {'typeOfjobs_by_pro': []})
+            type_of_jobs = PriceList.get_type_of_jobs_by_professional(typeOfjob[0].professional_id.professional_id)
+        return render(request, "reservation/typeOfJob_list.html", {'type_of_jobs': type_of_jobs})
 
 
 @login_required
-def create_typeOfJob(request):
+def create_job(request):
     if request.method == 'GET':
-        form1 = TypeOfJobForm()
+        form1 = PriceListForm()
         return render(request, 'reservation/typeOfJob_form.html', {'form': form1})
 
     if request.method == 'POST':
-        form = TypeOfJobForm(request.POST)
+        form = PriceListForm(request.POST)
         if form.is_valid():
-            typeOfjob_by_pro = list(TypeOfJob.objects.filter(professional_id__profile_id__user_id=request.user))
-            typeOfjob = TypeOfJob.objects.create(professional_id=typeOfjob_by_pro[0].professional_id,
-                                                 typeOfJob_name=form.cleaned_data['typeOfJob_name'],
+            job_filtered_by_pro = list(PriceList.objects.filter(user__phone_number=request.user))
+            job = PriceList.objects.create(professional_id=job_filtered_by_pro[0].professional_id,
+                                                 job_name=form.cleaned_data['job_name'],
                                                  price=form.cleaned_data['price'])
 
-            typeOfjob.save()
+            job.save()
             messages.success(request, "The typeOfJob was created successfully.")
-            return redirect('typeOfJob')
+            return redirect('jobs')
         else:
             return render(request, 'reservation/typeOfJob_form.html', {'form': form})
 
 
 class TypeOfJobUpdate(LoginRequiredMixin, generic.UpdateView):
-    model = TypeOfJob
-    fields = ['typeOfJob_name', 'price']
-    success_url = reverse_lazy('typeOfJob')
+    model = PriceList
+    fields = ['job_name', 'price']
+    success_url = reverse_lazy('jobs')
     template_name = "reservation/typeOfJob_form.html"
 
     def form_valid(self, form):
@@ -65,9 +65,9 @@ class TypeOfJobUpdate(LoginRequiredMixin, generic.UpdateView):
 
 @login_required
 def type_of_job_delete(request, pk):
-    type_of_job = TypeOfJob.objects.filter(typeOfJob_id=pk)[0]
+    type_of_job = PriceList.objects.filter(id=pk)[0]
     type_of_job.delete()
-    return redirect('typeOfJob')
+    return redirect('jobs')
 
 
 def get_date(req_day):
@@ -99,8 +99,7 @@ def create_schedule(request):
         start_day = form.cleaned_data["start_day"]
         end_day = form.cleaned_data["end_day"]
         meeting_time = form.cleaned_data["meeting_time"]
-        schedule = list(Schedule.objects.filter(professional_id__profile_id__user_id=request.user,
-                                                start_day__day=start_day.day))
+        schedule = list(Schedule.objects.filter(professional__user=request.user, start_day__day=start_day.day))
         if start_day >= end_day or start_day.day != end_day.day or start_day < now:
             messages.error(request, 'Entering incorrect details')
             return redirect('schedule_new')
@@ -108,7 +107,7 @@ def create_schedule(request):
             messages.error(request, 'You have already set a meeting schedule for this day')
             return redirect('schedule_new')
         else:
-            schedule = list(Schedule.objects.filter(professional_id__profile_id__user_id=request.user))
+            schedule = list(Schedule.objects.filter(professional__user=request.user))
             Schedule.objects.get_or_create(
                 professional_id=schedule[0].professional_id,
                 start_day=start_day,
@@ -133,9 +132,9 @@ def confirm_appointment(request, professional_id, meeting, day, month, year):
     end_meeting = meeting.split("-")[1]
 
     if request.method == 'GET':
-        typeOfjobs = TypeOfJob.objects.filter(professional_id__professional_id=professional_id)
-        if typeOfjobs:
-            typeOfjobs_by_pro = TypeOfJob.get_typeofjobs_by_professional(typeOfjobs[0].professional_id.professional_id)
+        type_of_job = PriceList.objects.filter(professional_id__professional_id=professional_id)
+        if type_of_job:
+            type_of_jobs = PriceList.get_type_of_jobs_by_professional(type_of_job[0].professional_id.professional_id)
         else:
             return redirect('homepage')
 
@@ -143,29 +142,24 @@ def confirm_appointment(request, professional_id, meeting, day, month, year):
             'professional_id': professional_id,
             'start_meeting': start_meeting,
             'end_meeting': end_meeting,
-            'typeOfjobs_by_pro': typeOfjobs_by_pro,
+            'type_of_jobs': type_of_jobs,
             'day': day,
             'month': month,
             'year': year
         })
 
-    if request.method == 'POST':
+    elif request.method == 'POST':
         selected_service = request.POST.get('service')
-        typeOfJob = TypeOfJob.objects.filter(typeOfJob_id=selected_service).first()  # Use first() instead of [0]
+        type_of_job = PriceList.objects.filter(id=selected_service).first()  # Use first() instead of [0]
         professional = Professional.objects.filter(
             professional_id=professional_id).first()  # Use first() instead of [0]
-        client = Client.objects.filter(profile_id__user_id=request.user).first()  # Use first() instead of [0]
+        user = User.objects.filter(phone_number=request.user).first()  # Use first() instead of [0]
 
-        start_appointment = datetime(year, month, day, int(start_meeting.split(':')[0]),
-                                     int(start_meeting.split(':')[1]))
-        end_appointment = datetime(year, month, day, int(end_meeting.split(':')[0]), int(end_meeting.split(':')[1]))
+        start = datetime(year, month, day, int(start_meeting.split(':')[0]), int(start_meeting.split(':')[1]))
+        end = datetime(year, month, day, int(end_meeting.split(':')[0]), int(end_meeting.split(':')[1]))
 
         appointment = Appointment.objects.create(
-            professional_id=professional,
-            client_id=client,
-            typeOfJob_id=typeOfJob,
-            start_appointment=start_appointment,
-            end_appointment=end_appointment
+            professional=professional, user=user, job=type_of_job, start=start, end=end
         )
         appointment.save()
 
@@ -199,10 +193,10 @@ class CalendarView(LoginRequiredMixin, generic.ListView):
         context = super().get_context_data(**kwargs)
         d = get_date(self.request.GET.get("month", None))
         if user is False:
-            schedule = list(Schedule.objects.filter(professional_id__profile_id__user_id=self.request.user))
+            schedule = list(Schedule.objects.filter(professional__user=self.request.user))
         else:
             professional_id = self.kwargs['pk']
-            schedule = list(Schedule.objects.filter(professional_id__professional_id=professional_id))
+            schedule = list(Schedule.objects.filter(professional=professional_id))
             context["professional_id"] = professional_id
 
         if schedule:
@@ -219,21 +213,21 @@ class CalendarView(LoginRequiredMixin, generic.ListView):
 
 @login_required
 def appointment_list(request):
+    context = {
+        'my_appointments': [],
+        'is_professional': True
+    }
     if request.method == 'GET':
-        professional = Professional.objects.filter(profile_id__user_id=request.user).first()
+        professional = Professional.objects.filter(user=request.user).first()
         if professional:
-            is_pro = True
-            my_appointments = Appointment.get_appointments_list_after_current_day(professional.professional_id, True)
+            my_appointments = Appointment.filter_appointments_from_now(professional.id, True)
         else:
-            is_pro = False
-            client = Client.objects.filter(profile_id__user_id=request.user).first()
-            my_appointments = Appointment.get_appointments_list_after_current_day(client.client_id, False)
+            context['is_professional'] = True
+            user: User = User.objects.filter(phone_number=request.user).first()
+            my_appointments = Appointment.filter_appointments_from_now(user, False)
         if my_appointments:
-            return render(request, "reservation/myAppointments_list.html", {'my_appointments': my_appointments,
-                                                                            'is_pro': is_pro})
-        else:
-            return render(request, "reservation/myAppointments_list.html", {'my_appointments': [],
-                                                                            'is_pro': is_pro})
+            context['my_appointments'] = my_appointments
+        return render(request, "reservation/my_appointments_list.html", context)
 
 
 @login_required

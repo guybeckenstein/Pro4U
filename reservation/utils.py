@@ -21,7 +21,7 @@ class Calendar(HTMLCalendar):
         if self.user is False:
             schedule_per_day = schedule.filter(start_day__day=day)
         else:
-            schedule_per_day = Schedule.get_possible_meetings(self.professional_id, day, self.month, self.year)
+            schedule_per_day = Schedule.get_professional_possible_meetings(self.professional_id, day, self.month, self.year)
         d = ""
         for schedule in schedule_per_day:
             if self.user is False:

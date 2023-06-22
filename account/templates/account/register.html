@@ -1,0 +1,26 @@
+{% extends 'landing/base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block title %}
+  Sign up
+{% endblock %}
+
+{% block content %}
+  <div class="p-5" style="margin-top: 80px;">
+    {% crispy form %}
+  </div>
+
+<script>
+document.body.addEventListener('mousedown', function(event) {
+    const passwordField = document.querySelector('#id_password');
+    const isPasswordField = event.target === passwordField;
+
+    if (!isPasswordField) {
+        const event = new Event('htmx:configRequest');
+        event.detail.headers['X-CSRFToken'] = '{{ csrf_token }}';
+        passwordField.dispatchEvent(event);
+    }
+});
+</script>
+{% endblock %}

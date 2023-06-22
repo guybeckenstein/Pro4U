@@ -1,6 +1,6 @@
 from django.contrib import admin
-from .models import TypeOfJob, Appointment, Schedule
+from .models import PriceList, Appointment, Schedule
 
-admin.site.register(TypeOfJob)
+admin.site.register(PriceList)
 admin.site.register(Appointment)
 admin.site.register(Schedule)

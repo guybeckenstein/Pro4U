@@ -3,8 +3,8 @@ from django.urls import reverse
 from account.forms import LoginForm
 
 
-USERNAME = "testusername3"
-PASSWORD = 'testpassword3'
+USERNAME = "TalTheUser"
+PASSWORD = 'TalPassword'
 
 
 @pytest.mark.django_db
@@ -14,13 +14,13 @@ class TestLoginView:
         assert response.status_code == 200
         assert 'account/login.html' in response.templates[0].name
 
-    def test_sign_in_POST_valid(self, client, professional):
+    def test_sign_in_POST_valid(self, client):
         response = client.post('/login/', {
             'username': USERNAME,
             'password': PASSWORD,
         })
         assert response.status_code == 302
-        assert response.url == reverse('user_profile')
+        assert response.url == reverse('profile_landing')
 
     def test_sign_in_POST_invalid(self, client):
         response = client.post('/login/', {

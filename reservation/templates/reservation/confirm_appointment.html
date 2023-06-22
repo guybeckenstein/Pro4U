@@ -1,39 +1,61 @@
 {% extends 'base_reservation.html' %}
 {% load static %}
 
-{% block title %}Make appointment{% endblock %}
+{% block title %}
+  Make appointment
+{% endblock %}
 
 {% block center-content %}
-<div style="width: 80%; margin: 0 auto;">
+  <div style="width: 80%; margin: 0 auto;">
     <div class="clearfix">
-        <a class="btn btn-primary left" href="{% url 'make_appointment' professional_id %}" style="color: white; background-color: black;">Calendar</a>
+      <a class="btn btn-primary left" href="{% url 'make_appointment' professional_id %}" style="color: white; background-color: black;">
+        Calendar
+      </a>
     </div>
     <div class="clearfix text-center">
-        <h3>Make appointment</h3>
-        <p>Day: {{ day }}</p>
-        <p>Month: {{ month }}</p>
-        <p>Year: {{ year }}</p>
-        <p>Start meeting: {{ start_meeting }}</p>
-        <p>End meeting: {{ end_meeting }}</p>
+      <h3>
+        Make appointment
+      </h3>
+      <p>
+        Day: {{ day }}
+      </p>
+      <p>
+        Month: {{ month }}
+      </p>
+      <p>
+        Year: {{ year }}
+      </p>
+      <p>
+        Start meeting: {{ start_meeting }}
+      </p>
+      <p>
+        End meeting: {{ end_meeting }}
+      </p>
     </div>
     <form method="POST">
-        {% csrf_token %}
-        <div class="text-center">
-            <h3>Select Service:</h3>
-               <div class="d-flex justify-content-center align-items-center flex-column">
-                <select class="form-select" name="service" style="font-size: 1.2em; width: 200px;">
-                    {% for typeOfJob in typeOfjobs_by_pro %}
-                        <option value="{{ typeOfJob.typeOfJob_id }}">{{ typeOfJob.typeOfJob_name }}  {{ typeOfJob.price }}</option>
-                    {% endfor %}
-                </select>
-            </div>
+      {% csrf_token %}
+      <div class="text-center">
+        <h3>
+          Select Service:
+        </h3>
+        <div class="d-flex justify-content-center align-items-center flex-column">
+          <select class="form-select" name="service" style="font-size: 1.2em; width: 200px;">
+            {% for job in type_of_jobs %}
+              <option value="{{ job.id }}">
+                {{ job.job_name }} {{ job.price }}
+              </option>
+            {% endfor %}
+          </select>
         </div>
-        <div class="my-3"></div>
-        <div class="text-center">
-             <button type="submit" class="btn btn-primary" id="confirmBtn" style="color: white; background-color: orange;">Confirm</button>
-        </div>
+      </div>
+      <div class="my-3"></div>
+      <div class="text-center">
+        <button type="submit" class="btn btn-primary" id="confirmBtn" style="color: white; background-color: orange;">
+          Confirm
+        </button>
+      </div>
     </form>
-   <img src="{% static 'img/Appointment.png' %}" style="position: fixed; bottom: 250px; right: 150px; width: 300px; height: auto;">
+    <img src="{% static 'img/Appointment.png' %}" style="position: fixed; bottom: 250px; right: 150px; width: 300px; height: auto;">
     <hr>
-</div>
+  </div>
 {% endblock %}

@@ -4,7 +4,7 @@ from django.urls import reverse
 from django.views.generic import ListView, CreateView, UpdateView
 from django.shortcuts import get_object_or_404, redirect
 
-from account.models.client import Client
+from account.models.user import User
 from account.models.professional import Professional
 from .forms import ReviewForm
 from .models import Review
@@ -31,7 +31,7 @@ class ReviewListView(LoginRequiredMixin, UnauthenticatedUser404Mixin, ListView):
     paginate_by = 10
 
     def get_queryset(self):
-        professional = get_object_or_404(Professional, pk=self.kwargs['pk'])
+        professional = get_object_or_404(Professional, id=self.kwargs['ID'])
         # Sort reviews if user pressed one of the buttons
         sort_by = self.request.GET.get('sort_by')
         # All sorting types use Review.objects to call ReviewManager method
@@ -52,7 +52,7 @@ class ReviewListView(LoginRequiredMixin, UnauthenticatedUser404Mixin, ListView):
         context = super().get_context_data(**kwargs)
         # Enables sorting
         context['sort_by'] = self.request.GET.get('sort_by', '')
-        context['professional'] = Professional.objects.get(professional_id=self.kwargs['pk'])
+        context['professional'] = Professional.objects.get(id=self.kwargs['ID'])
 
         reviews = Review.filter_by_professional(professional=context['professional'])
         if reviews.count() > 0:
@@ -66,10 +66,10 @@ class ReviewListView(LoginRequiredMixin, UnauthenticatedUser404Mixin, ListView):
         # Filter by the user review if they are logged in
         if self.request.user.is_authenticated:
             # TODO: validate that it have had reservation with the professional before
+            # TODO: fix after changed models in `account` app
             # Retrieving client ID
-            profile = self.request.user.profile
-            client, _ = Client.objects.get_or_create(profile_id=profile)
-            if reviews.filter(client=client):
+            user, _ = User.objects.get_or_create(id=self.request.user.id)
+            if reviews.filter(user=user):
                 context['user_review'] = True
             else:
                 context['user_review'] = False
@@ -84,36 +84,34 @@ class ReviewCreateView(LoginRequiredMixin, UnauthenticatedUser404Mixin, CreateVi
     # In case user already reviewed the professional, this function redirects it to UpdateView instead of CreateView
     def dispatch(self, request, *args, **kwargs):
         # Retrieving client ID
-        profile = self.request.user.profile
-        client, _ = Client.objects.get_or_create(profile_id=profile)
+        user, _ = User.objects.get_or_create(id=self.request.user.id)
 
         # Retrieving professional ID
-        professional_id = self.kwargs['pk']
+        professional = self.kwargs['ID']
 
         # Check if the client has already reviewed the professional
-        if Review.objects.filter(client=client, professional_id=professional_id).exists():
+        if Review.objects.filter(user=user, professional=professional).exists():
             # Client has already reviewed the professional, redirect them to the update page
-            return redirect(reverse('review-update', kwargs={'pk': professional_id}))
+            return redirect(reverse('review-update', kwargs={'ID': professional.id}))
 
         return super().dispatch(request, *args, **kwargs)
 
     def form_valid(self, form):
         # Retrieving client ID
-        profile = self.request.user.profile
-        client, _ = Client.objects.get_or_create(profile_id=profile)
-        form.instance.client = client
+        user, _ = User.objects.get_or_create(id=self.request.user.id)
+        form.instance.user = user
         # Retrieving professional ID
-        form.instance.professional = Professional.objects.get(professional_id=self.kwargs['pk'])
+        form.instance.professional = Professional.objects.get(id=self.kwargs['ID'])
         return super().form_valid(form)
 
     def get_context_data(self, **kwargs):
         # This enables to see what is the name of the professional in the HTML template title
         context = super().get_context_data(**kwargs)
-        context['professional'] = Professional.objects.get(professional_id=self.kwargs['pk'])
+        context['professional'] = Professional.objects.get(id=self.kwargs['ID'])
         return context
 
     def get_success_url(self):
-        return reverse('reviews', args=[self.kwargs['pk']])
+        return reverse('reviews', args=[self.kwargs['ID']])
 
 
 class ReviewUpdateView(LoginRequiredMixin, UnauthenticatedUser404Mixin, UpdateView):
@@ -123,36 +121,34 @@ class ReviewUpdateView(LoginRequiredMixin, UnauthenticatedUser404Mixin, UpdateVi
     def get_initial(self):
         initial = super().get_initial()
         # Retrieve the client ID (current user ID)
-        profile = self.request.user.profile
-        client, _ = Client.objects.get_or_create(profile_id=profile)
-        initial['client_id'] = client.client_id
+        user, _ = User.objects.get_or_create(user=self.request.user)
+        initial['user'] = user
         return initial
 
     def get_object(self, queryset=None) -> Review:
         # Retrieve the review object based on Client ID (current session)
-        client = self.request.user.profile.client.client_id
-        professional = self.kwargs['pk']
-        reviews_by_client = Review.objects.filter(client=client, professional=professional).first()
+        user = self.request.user
+        professional = self.kwargs['ID']
+        reviews_by_client = Review.objects.filter(user=user, professional=professional).first()
         if reviews_by_client:
             filtered_review_id = reviews_by_client.id
         else:
             # Invalid input, then we will deliberately get 404 to see error
             filtered_review_id = -1
-        review = get_object_or_404(Review, id=filtered_review_id, client__client_id=client)
+        review = get_object_or_404(Review, id=filtered_review_id, user=user)
         return review
 
     def get_context_data(self, **kwargs):
         # This enables to see what is the name of the professional in the HTML template title
         context = super().get_context_data(**kwargs)
-        context['professional'] = Professional.objects.get(professional_id=self.kwargs['pk'])
+        context['professional'] = Professional.objects.get(professional=self.kwargs['ID'])
         return context
 
     def get_success_url(self):
-        return reverse('reviews', args=[self.kwargs['pk']])
+        return reverse('reviews', args=[self.kwargs['ID']])
 
     def test_func(self):
         # Only client X can update reviews of client X
         review = self.get_object()
-        profile = self.request.user.profile
-        client, _ = Client.objects.get_or_create(profile_id=profile)
-        return client == review.client
+        user, _ = User.objects.get_or_create(id=self.request.user.id)
+        return user == review.user

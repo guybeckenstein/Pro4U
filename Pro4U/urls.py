@@ -23,16 +23,16 @@ from review import views as review_views
 from review.models import Review
 
 urlpatterns = [
+    # Admin URLs
     path('admin/', admin.site.urls),
-    path('', landing_views.homepage, name='homepage'),
-    path('learn-more/', landing_views.learn_more, name='learn_more'),
+    # Applications URLs
+    path('', include('account.urls')),
+    path('', include('chat.urls')),
+    path('', include('landing.urls')),
     path('', include('reservation.urls')),
-    path('', include('account.urls.login_urls')),
-    path('', include('SearchHistory.urls')),
-    path('', include('account.urls.profile_urls')),
-    path('professional/<int:pk>/reviews/', review_views.ReviewListView.as_view(model=Review, paginate_by=10),
-         name='reviews'),
-    path('professional/<int:pk>/reviews/new/', review_views.ReviewCreateView.as_view(), name='review-create'),
-    path('professional/<int:pk>/reviews/update/', review_views.ReviewUpdateView.as_view(), name='review-update'),
-    path('', include('chatmessage.urls')),
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    path('', include('review.urls')),
+    path('', include('search.urls')),
+]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

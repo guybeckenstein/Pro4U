@@ -7,7 +7,7 @@
 
 <!-- Your Review - Joe Doe -->
 {% block title %}
-  Your Review - {{ professional.profile_id.user_id.first_name }} {{ professional.profile_id.user_id.last_name }}
+  Your Review - {{ professional.user.first_name }} {{ professional.user.last_name }}
 {% endblock %}
 
 {% block center-content %}
@@ -38,7 +38,7 @@
       </div>
       <div class="row p-0">
         <div class="col" style="padding-top: 10px;">
-          <a href="{% url 'reviews' pk=professional.pk %}" class="btn" style="text-decoration: none; padding: 0;">
+          <a href="{% url 'reviews' professional.id %}" class="btn" style="text-decoration: none; padding: 0;">
             <button type="button" class="btn btn-primary">
               Cancel
             </button>
